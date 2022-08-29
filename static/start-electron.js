@@ -1,6 +1,6 @@
 
 // Modules to control application life and create native browser window
-const { app, BrowserWindow } = require('electron')
+const { app, protocol, BrowserWindow } = require('electron')
 const path = require('path')
 const isDev = require('electron-is-dev')
 
@@ -15,11 +15,10 @@ const createWindow = () => {
   })
 
   // and load the index.html of the app.
-  const appUrl = (
-    isDev ? 'http://localhost:3000' :
-    `file://${path.join(__dirname, '../build/index.html')}`
-  )
-  mainWindow.loadURL(appUrl)
+  if (isDev)
+    mainWindow.loadURL('http://localhost:3000/')
+  else
+    mainWindow.loadFile("/")
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
@@ -29,6 +28,37 @@ const createWindow = () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
+  protocol.interceptFileProtocol('file', (request, callback) => {
+    const url = request.url.substr('file://'.length)
+    if (url.startsWith(__dirname)) {
+      // console.log(`Using unchanged URL: ${request.url}`)
+      callback({path: url}) ;
+    } else {
+      const url_path = (
+        url == "/"
+        ? path.normalize(`${__dirname}/index.html`)
+        : path.normalize(`${__dirname}/${url}`)
+      )
+      // console.log(`Request URL: ${request.url}, Path: ${url_path}`)
+      callback({path: url_path})
+    }
+    return true ;
+  }, (err) => {
+    if (err) console.error('Failed to register protocol')
+  })
+
+  // protocol.registerFileProtocol('atom', (request, callback) => {
+  //   const url = request.url.substr("atom://".length)
+  //   const url_path = (
+  //     url.length == 0
+  //     ? path.normalize(`${__dirname}/../build/index.html`)
+  //     : path.normalize(`${__dirname}/../build/${url}`)
+  //   ) ;
+  //   callback({
+  //     path: url_path
+  //   })
+  // })
+
   createWindow()
 
   app.on('activate', () => {
