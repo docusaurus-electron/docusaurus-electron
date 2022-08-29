@@ -47,18 +47,6 @@ app.whenReady().then(() => {
     if (err) console.error('Failed to register protocol')
   })
 
-  // protocol.registerFileProtocol('atom', (request, callback) => {
-  //   const url = request.url.substr("atom://".length)
-  //   const url_path = (
-  //     url.length == 0
-  //     ? path.normalize(`${__dirname}/../build/index.html`)
-  //     : path.normalize(`${__dirname}/../build/${url}`)
-  //   ) ;
-  //   callback({
-  //     path: url_path
-  //   })
-  // })
-
   createWindow()
 
   app.on('activate', () => {
