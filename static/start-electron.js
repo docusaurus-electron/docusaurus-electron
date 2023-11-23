@@ -4,6 +4,7 @@ const { app, protocol, BrowserWindow } = require('electron')
 const path = require('path')
 const isDev = require('electron-is-dev')
 
+app.commandLine.appendSwitch('force-color-profile', 'srgb');
 const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
